@@ -42,6 +42,15 @@
             background: #00ffcc22;
             transform: translateY(-5px);
         }
+        
+        #chat button:hover {
+			background-color: #00cca3;
+			filter: brightness(1.1);
+		}
+
+		#chat button:active {
+			transform: scale(0.95);
+		}
     </style>
 </head>
 <body>
@@ -58,10 +67,20 @@
     </div>
 
     <div class="main-content">
-        <div id="chat" class="tab-content">
-            <h1>Rubert IA</h1>
-            <p>Em breve: Análise de imagens de xadrez e geração de código.</p>
-        </div>
+        <div id="chat" class="tab-content" style="display: none; flex-direction: column; height: calc(100vh - 80px);">
+			<h1>Rubert IA</h1>
+			<div id="container-chat" style="flex: 1; margin-top: 20px; overflow-y: auto; background: #222; border-radius: 8px; padding: 10px;">
+				
+			</div>
+
+			<div style="display: flex; gap: 10px; margin-top: 20px; align-items: center; width: 100%; box-sizing: border-box;">
+				<textarea id="input-chat" placeholder="Cole seu código ou digite aqui..." 
+    style="flex: 1; padding: 15px; border-radius: 8px; border: 1px solid #444; background: #222; color: white; box-sizing: border-box; resize: none; height: 60px; font-family: monospace;"></textarea>
+				<button onclick="executarChat()" style="padding: 10px 20px; background: #00ffcc; color: black; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                    ➤
+                </button>
+			</div>
+		</div>
 
         <div id="noticias" class="tab-content">
             <h1>Últimas Notícias</h1>
@@ -117,17 +136,25 @@
 	atualizarRelogio();
 
     function openTab(evt, tabName) {
-        let content = document.getElementsByClassName("tab-content");
-        for (let i = 0; i < content.length; i++) {
-            content[i].classList.remove("active");
-        }
+		let content = document.getElementsByClassName("tab-content");
+		for (let i = 0; i < content.length; i++) {
+			content[i].style.display = "none";
+			content[i].classList.remove("active");
+		}
 
-        let buttons = document.querySelectorAll(".sidebar button");
-        buttons.forEach(btn => btn.classList.remove("active"));
+		let buttons = document.querySelectorAll(".sidebar button");
+		buttons.forEach(btn => btn.classList.remove("active"));
 
-        document.getElementById(tabName).classList.add("active");
-        evt.currentTarget.classList.add("active");
-    }
+		const activeTab = document.getElementById(tabName);
+		if (tabName === 'chat') {
+			activeTab.style.display = "flex";
+		} else {
+			activeTab.style.display = "block";
+		}
+    
+		activeTab.classList.add("active");
+		evt.currentTarget.classList.add("active");
+	}
 
     async function carregarNoticias() {
         const container = document.getElementById('container-noticias');
@@ -192,11 +219,57 @@
             console.error(err);
         }
     }
+    
+    async function executarChat() {
+		const input = document.getElementById('input-chat');
+		const query = input.value;
+		const container = document.getElementById('container-chat');
+		
+		if (!query) return;
+		
+		container.insertAdjacentHTML('beforeend', `
+			<div style="background: #333; padding: 10px; border-radius: 8px; margin-bottom: 10px; color: #00ffcc;">
+				<strong>Você:</strong> ${query}
+			</div>
+		`);
+
+		input.value = "";
+		
+		container.scrollTop = container.scrollHeight;
+		
+		try {
+			const response = await fetch(`/api/chat?q=${encodeURIComponent(query)}`);
+            const dados = await response.json();
+            
+            container.insertAdjacentHTML('beforeend', `
+				<div style="background: #333; padding: 10px; border-radius: 8px; margin-bottom: 10px; color: #00ffcc;">
+					<strong>RubertIA:</strong> ${dados.content}
+				</div>
+			`);
+			container.scrollTop = container.scrollHeight;
+			
+		} catch (err) {
+            container.insertAdjacentHTML('beforeend', `
+			<div style="background: #333; padding: 10px; border-radius: 8px; margin-bottom: 10px; color: #00ffcc;">
+				<strong>RubertIA:</strong> Nao foi possivel se conectar ao servidor.
+			</div>
+			`);
+            console.error(err);
+            container.scrollTop = container.scrollHeight;
+        }
+        container.scrollTop = container.scrollHeight;
+	}
 
     document.getElementById('input-busca').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
             executarBusca();
         }
+    });
+    document.getElementById('input-chat').addEventListener('keypress', function (e) {
+		if (e.key === 'Enter' && !e.shiftKey) {
+			e.preventDefault();
+			executarChat();
+		}
     });
 </script>
 </body>

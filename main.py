@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import re
 import feedparser
 from flask import Flask, render_template, request, jsonify
+import subprocess
 
 app = Flask(__name__)
 
@@ -59,5 +60,28 @@ def api_search():
         print(f"Erro na busca POST: {e}")
         return jsonify({"error": "Falha na busca"}), 500
 
+@app.route('/api/chat')
+def api_chat():
+    query = request.args.get('q')
+    if not query:
+        return jsonify(content="Envie uma pergunta.")
+    
+    try:
+        process = subprocess.Popen(
+            ['./build/RubertIA'], 
+            stdin=subprocess.PIPE, 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        res, error = process.communicate(input=query + '\n')
+
+        if process.returncode != 0:
+            return jsonify(content=f"Erro no parser: {error}")
+
+        return jsonify(content=res)
+    except Exception as e:
+        return jsonify(content=f"Erro no servidor: {str(e)}")
+        
 if __name__ == '__main__':
     app.run(debug=True)
