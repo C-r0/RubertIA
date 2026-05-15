@@ -62,7 +62,7 @@
         <h2>Dashboard</h2>
         <button onclick="openTab(event, 'chat')">🤖 IA Chat</button>
         <button onclick="openTab(event, 'noticias')" id="btn-noticias">📰 Notícias</button>
-        <button onclick="openTab(event, 'busca')">🔍 SearXNG</button>
+        <button onclick="opensearxng()">🔍 SearXNG</button>
         <button onclick="openTab(event, 'atalhos')" class="active">🔗 Atalhos</button>
     </div>
 
@@ -103,9 +103,10 @@
 		    <h1>Atalhos</h1>
 		    <div class="grid-atalhos">
 		        <a href="https://tiktok.com" target="_blank" class="card-atalho">Tiktok</a>
+		        <a href="https://instagram.com" target="_blank" class="card-atalho">Instagram</a>
+		        <a href="https://youtube.com" target="_blank" class="card-atalho">Youtube</a>
 		        <a href="https://lichess.org" target="_blank" class="card-atalho">Lichess</a>
 		        <a href="https://chess.com" target="_blank" class="card-atalho">Chess</a>
-		        <a href="https://instagram.com" target="_blank" class="card-atalho">Instagram</a>
 		        <a href="https://github.com" target="_blank" class="card-atalho">Github</a>
 		        <a href="https://mail.google.com" target="_blank" class="card-atalho">Gmail</a>
 		    </div>
@@ -113,6 +114,10 @@
     </div>
 
 <script>
+	function opensearxng() {
+		window.open("http://127.0.0.1:8080/", "mozillaTab");
+	}
+	
 	function atualizarRelogio() {
 	    const agora = new Date();
 

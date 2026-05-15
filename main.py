@@ -39,26 +39,31 @@ def api_search():
 
     SEARX_URL = "http://127.0.0.1:8080/search"
 
-    payload = {
+    params = {
         'q': query,
         'format': 'json',
+        'categories': 'general',
+        'language': 'pt-BR',
+        'time_range': '',
+        'safesearch': '0',
+        'theme': 'simple'
     }
 
     headers = {
-        "User-Agent": "Mozilla/5.0 (X11; Arch Linux; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0",
-        "Origin": "http://127.0.0.1:8080",
-        "Referer": "http://127.0.0.1:8080/"
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0",
+        "Accept": "application/json",
     }
 
     try:
-        r = requests.get(SEARX_URL, params=payload,  headers=headers, timeout=10)
+        r = requests.get(SEARX_URL, params=params, headers=headers, timeout=10)
+        
         r.raise_for_status()
             
-        search_results = r.json().get('results', [])
-        return jsonify(search_results[:10])
+        data = r.json()
+        return jsonify(data.get('results', []))
     except Exception as e:
-        print(f"Erro na busca POST: {e}")
-        return jsonify({"error": "Falha na busca"}), 500
+        print(f"Erro detalhado: {e}")
+        return jsonify({"error": "Falha na comunicação com o motor de busca"}), 500
 
 @app.route('/api/chat')
 def api_chat():
